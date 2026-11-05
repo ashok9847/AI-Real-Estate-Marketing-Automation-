@@ -1,0 +1,523 @@
+{
+  "name": "Automate real estate marketing with Llama AI, VAPI calls & Gmail campaigns",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "llama3.2-16000:latest",
+        "options": {}
+      },
+      "id": "c41e4b49-9c64-44c7-941f-b855d1c156b9",
+      "name": "Llama 3.2 - Promo Content Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "position": [
+        944,
+        672
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "options": {}
+      },
+      "id": "360ef908-8473-420f-ad04-288a804cd56d",
+      "name": "Watch Real Estate Offer Sheet",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        416,
+        400
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "7u5tkYRrOkMCrYzp",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        }
+      },
+      "id": "7459aa86-67c4-417b-b20f-4693e564884d",
+      "name": "Get Client Contact List",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        640,
+        400
+      ],
+      "typeVersion": 4.6
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "add_authorization_token_here"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"assistantId\": \"add_id_here\",\n  \"phoneNumberId\": \"add_phone_number_id_here\",\n  \"customers\": [\n    {\n      \"number\": \"add_vapi_agent_phonenumber_here\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "70fe474a-74fd-44c4-88e2-37d40805fe1d",
+      "name": "Trigger Voice Campaign via VAPI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        896,
+        0
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert real estate sales copywriter. Based on the provided property offer, craft a persuasive and emotionally engaging promotional message for WhatsApp or Email that drives immediate action and lead generation through calls or clicks.\n\n🎯 Objective:\nDrive lead inquiries and bookings by showcasing value, urgency, and exclusivity in an impactful, action-focused message.\n\n📌 Format Guidelines:\n\nMax 150 words\n\nShort, crisp lines (WhatsApp/email friendly)\n\nAdd 3–5 real-estate-relevant emojis for appeal\n\nUse a warm, enthusiastic, benefit-driven tone\n\nBold hooks, emotional appeal, urgency & CTA\n\nUse <ul> lists for features and benefits\n\n📋 Offer Data:\n\nProject Name: {{ $json.title }}\n\nLocation: {{ $json.location }}\n\nDiscount: {{ $json.discount }}\n\nValid Till: {{ $json.validity }}\n\nInclusions: {{ $json.products_included }}\n\nOriginal Price: {{ $json.original_price }}\n\nOffer Price: {{ $json.discounted_price }}\n\nFreebie/Bonus: {{ $json.bonus }}\n\nContact Action: {{ $json.cta }}\n\n📢 Message Structure:\n\nCatchy Headline with 1–2 emojis + {{ $json.title }} or location hook\n\nEmotional intro (e.g., “Your dream home awaits” / “Invest smart, live better”)\n\nMention original price vs offer price + discount clearly\n\nFeature list in <ul> – highlight rooms, view, amenities\n\nBenefit list in <ul> – ROI, lifestyle, security, location perks\n\nHighlight {{ $json.bonus }} as exclusive gift 🎁\n\nCreate urgency – {{ $json.validity }} + “limited units” with ⏳\n\nEnd with high-energy CTA + contact/call prompt: {{ $json.cta }}\n\n🧾 Sample Output Format:\n\n🏡 LIMITED DEAL IN {{ $json.location }}! 🌇\n\nLooking for your dream property? This is the sign you've been waiting for!\n\n💰 Just {{ $json.discounted_price }} ({{ $json.discount }} OFF {{ $json.original_price }})!\n\n✨ What You Get:\n\n<ul> <li>3BHK Spacious Apartment with Balcony View</li> <li>Modern Kitchen, Smart Layout, Prime Location</li> </ul>\n🔑 Why It's Perfect:\n\n<ul> <li>✔️ Excellent ROI & Growing Area</li> <li>✔️ Secure Gated Community with Top Amenities</li> <li>✔️ Ideal for Families or Investors</li> </ul>\n🎁 Bonus: {{ $json.bonus }} included exclusively!\n\n⏳ Hurry! Offer valid till {{ $json.validity }}. Limited units available!\n\n📞 {{ $json.cta }} now to book your site visit or get full details!",
+        "options": {}
+      },
+      "id": "05c2d036-974b-4d8d-a1d3-de241e0ad2c8",
+      "name": "Generate Promo Content with Llama",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        848,
+        448
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {},
+      "id": "c60a67d2-c2e9-4cda-99a3-998acaeefaf7",
+      "name": "Delay to Sync Data",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1232,
+        544
+      ],
+      "webhookId": "76321858-c2b9-4c53-bc5f-90b4e32e2693",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "jsCode": "const emails = items.map(item => item.json.Emial);\nreturn [\n  {\n    json: {\n      allEmails: emails.join(\", \"),\n      output : $('Generate Promo Content with Llama').first().json.output\n    }\n  }\n];\n"
+      },
+      "id": "33e6da41-1d90-448b-99bf-6e504799951c",
+      "name": "Create Personalized Email Template",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1456,
+        544
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.allEmails }}",
+        "subject": "Offer",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "id": "3f4f7f36-dfc0-4dd0-aae6-629aa036811f",
+      "name": "Email Promo to Clients (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1664,
+        544
+      ],
+      "webhookId": "012ca109-03f0-445c-826c-45b4e85d21fe",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "60d5fdeb-b5d8-4e71-90d0-182acc695404",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "683c5242-cd5b-4797-a260-f7be9aad0c2f",
+      "name": "Receive Lead Data from VAPI",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        416,
+        1120
+      ],
+      "webhookId": "60d5fdeb-b5d8-4e71-90d0-182acc695404",
+      "typeVersion": 2
+    },
+    {
+      "parameters": {},
+      "id": "6bee22d4-c599-42ca-a98e-c80e6a3e3283",
+      "name": "Delay for Lead Parsing",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        672,
+        1120
+      ],
+      "webhookId": "7d356500-7ff6-4133-805f-5aa5cd5b2310",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        }
+      },
+      "id": "37dceb9f-374d-43d6-8f4d-46ff4040e43d",
+      "name": "Save Lead to CRM Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        928,
+        1120
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b1e6b857-f0b2-4e6f-a8fb-23e7d8ef4f81",
+      "name": "Send Acknowledgement to VAPI",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1168,
+        1120
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "content": "Triggers when a new offer is added/updated in Sheet 1. Starts the marketing campaign.\n\n",
+        "height": 340,
+        "width": 160,
+        "color": 3
+      },
+      "id": "0f0056d4-5d72-4b41-bf9d-5b4b3522fde0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        240
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Sends success response back to VAPI confirming lead was saved.\n\n",
+        "height": 340,
+        "width": 160,
+        "color": 4
+      },
+      "id": "aeb5d09d-bca4-404c-9bd0-df7546f93fbd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1136,
+        944
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Adds qualified leads to Google Sheet CRM for future follow-up.\n\n",
+        "height": 340,
+        "width": 160
+      },
+      "id": "3082042c-8524-4637-b708-ed3395776d6e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        896,
+        944
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Brief wait to ensure VAPI lead payload is fully captured and parsed.\n\n",
+        "height": 340,
+        "width": 160,
+        "color": 3
+      },
+      "id": "9bba9391-3b55-4dd1-b992-d85b2fa2afa5",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        944
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Captures lead info from VAPI voice call form (name, contact, interest, etc.).\n\n",
+        "height": 340,
+        "width": 160,
+        "color": 5
+      },
+      "id": "a6dc7a3e-a3d3-4e03-969f-279416c03683",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        944
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Initiates automated voice call to clients with key offer details using VAPI API.\n\n",
+        "height": 340,
+        "width": 180
+      },
+      "id": "1be66d0b-e30b-48fb-834c-77581862fdc9",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        -208
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Adds a pause to ensure all prior operations (API, sheets, AI) are complete.\n\n",
+        "height": 340,
+        "width": 160,
+        "color": 2
+      },
+      "id": "60edd47d-5e4e-4118-aa61-36c25957b2bb",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        384
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Formats the AI output into HTML/text email ready for sending to clients.\n\n",
+        "height": 340,
+        "width": 160,
+        "color": 5
+      },
+      "id": "93662cd4-dac8-407a-b43f-0ef436030660",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1408,
+        384
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Sends the personalized offer campaign to each client using Gmail or SMTP.\n\n",
+        "height": 340,
+        "width": 160,
+        "color": 4
+      },
+      "id": "b8e0d638-0f9b-4110-aae7-38c138ca92b0",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1648,
+        400
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Uses AI to create personalized marketing content based on updated offer.\n\n",
+        "height": 340,
+        "width": 300,
+        "color": 6
+      },
+      "id": "491498cf-4b34-4952-8030-0efd609fa112",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        272
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "Fetches email/phone info from Sheet 2 to target clients for this offer.\n\n",
+        "height": 340,
+        "width": 160,
+        "color": 4
+      },
+      "id": "12b91ddf-12b4-4933-a75d-f31b64c0a977",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        592,
+        240
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Delay to Sync Data": {
+      "main": [
+        [
+          {
+            "node": "Create Personalized Email Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delay for Lead Parsing": {
+      "main": [
+        [
+          {
+            "node": "Save Lead to CRM Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead to CRM Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send Acknowledgement to VAPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Client Contact List": {
+      "main": [
+        [
+          {
+            "node": "Trigger Voice Campaign via VAPI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Promo Content with Llama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Lead Data from VAPI": {
+      "main": [
+        [
+          {
+            "node": "Delay for Lead Parsing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch Real Estate Offer Sheet": {
+      "main": [
+        [
+          {
+            "node": "Get Client Contact List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Llama 3.2 - Promo Content Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Promo Content with Llama",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Promo Content with Llama": {
+      "main": [
+        [
+          {
+            "node": "Delay to Sync Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Personalized Email Template": {
+      "main": [
+        [
+          {
+            "node": "Email Promo to Clients (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "10cf5b36-6c27-4953-bab8-87a7c5dbbf27",
+  "meta": {
+    "templateId": "6630",
+    "instanceId": "007bef63ee78c89990ddc21cfde31faa9a7d4dbcc1ae985abdd79df35cd30e2b"
+  },
+  "nodeGroups": [],
+  "id": "uGjBw6d2GXxP1swa",
+  "tags": []
+}
